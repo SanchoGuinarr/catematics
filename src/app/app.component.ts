@@ -5,14 +5,76 @@ import {Cat, Data, Equation, Operation, Settings} from './models';
 import {GeneratorService} from './generator.service';
 import {interval, Subscription, timer} from 'rxjs';
 import {take} from 'rxjs/operators';
+import {animate, state, style, transition, trigger} from '@angular/animations';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  styleUrls: ['./app.component.css'],
+  animations: [
+    trigger('result', [
+      state('normal', style({
+        backgroundColor: 'white'
+      })),
+      state('right', style({
+        backgroundColor: 'chartreuse'
+      })),
+      state('wrong', style({
+        backgroundColor: 'red'
+      })),
+      transition('* => normal', [
+        animate('1s')
+      ]),
+      transition('normal => *', [
+        animate('0.2s')
+      ]),
+    ]),
+  ],
 })
 
 export class AppComponent implements OnInit, OnDestroy {
+
+  title = 'catematics';
+
+  readonly defaultSettings = {
+    gameLength: 2,
+    catComputingRatio: 70,
+    catComputingTime: 1,
+    subtractingRatio: 70,
+    rewardConstant: 2,
+  };
+
+  readonly defaultPrices = {
+    subtraction: 25,
+    overTen: 50,
+    overDecimals: 250,
+    subOverTen: 150,
+    subOverDecimals: 350,
+  };
+
+  form: FormGroup;
+  settingsForm: FormGroup;
+
+  data: Data;
+  nameEditing = false;
+  catComputing = false;
+  computingCatKey: number;
+  settingsOpen = false;
+  displayNextCat = false;
+  nextNumPrice = 2;
+  nextCatPrice = 50;
+  purchasedCats: Cat[];
+  settings: Settings;
+  actEquation: Equation;
+  resultEvaluation = 'normal';
+  victory = false;
+  victorySpeeder = 1;
+  prices = this.defaultPrices;
+
+  @ViewChild('result',{static: false}) resultInput: ElementRef;
+
+  messages: string[] = [];
+  moveSubscription: Subscription;
 
   constructor(
     private generator: GeneratorService
@@ -33,7 +95,7 @@ export class AppComponent implements OnInit, OnDestroy {
         cat: -1,
       };
 
-      const randomCats = GeneratorService.shuffle(Array.from(Array(15).keys()));
+      const randomCats = GeneratorService.shuffle(Array.from(Array(16).keys()));
 
       for (let i = 0; i < 10; i++) {
         this.data.cats.push({
@@ -50,6 +112,8 @@ export class AppComponent implements OnInit, OnDestroy {
       this.settings = this.defaultSettings;
     }
 
+    this.actualizePrices();
+
     this.form = new FormGroup({
       result: new FormControl(''),
     });
@@ -60,58 +124,23 @@ export class AppComponent implements OnInit, OnDestroy {
       catComputingTime: new FormControl(this.settings.catComputingTime,[Validators.required]),
       subtractingRatio: new FormControl(this.settings.subtractingRatio,[Validators.required]),
       rewardConstant: new FormControl(this.settings.rewardConstant,[Validators.required]),
+      password: new FormControl('',[Validators.required]),
     });
 
     this.actualizeCats();
 
   }
-  title = 'catematics';
-
-  readonly defaultSettings = {
-    gameLength: 2,
-    catComputingRatio: 70,
-    catComputingTime: 1,
-    subtractingRatio: 70,
-    rewardConstant: 2,
-  };
-
-  form: FormGroup;
-  settingsForm: FormGroup;
-
-  data: Data;
-  nameEditing = false;
-  catComputing = false;
-  computingCatKey: number;
-  settingsOpen = false;
-  displayNextCat = false;
-  nextNumPrice = 2;
-  nextCatPrice = 50;
-  purchasedCats: Cat[];
-  settings: Settings;
-  actEquation: Equation;
-
-  @ViewChild('result',{static: false}) resultInput: ElementRef;
-
-  prices = {
-    subtraction: 50,
-    overTen: 100,
-    overDecimals: 500,
-    subOverTen: 300,
-    subOverDecimals: 700,
-  };
-
-  messages: string[] = [];
-
-  moveSubscription: Subscription;
 
   ngOnInit(): void {
-    this.generateNewNumbers();
+    this.generateNewNumbers(true);
   }
 
-  generateNewNumbers() {
+  generateNewNumbers(catCheck: boolean) {
     this.form.controls.result.setValue('');
     this.actEquation = GeneratorService.prepareEquation(this.data, this.settings);
-    this.checkCatComputing();
+    if(catCheck) {
+      this.checkCatComputing();
+    }
   }
 
   evaluate() {
@@ -121,10 +150,16 @@ export class AppComponent implements OnInit, OnDestroy {
       this.sendMessage(
         `Spočítáno ${this.actEquation.firstNumber} ${this.actEquation.operation} ${this.actEquation.secondNumber} = ${this.actEquation.result}. Dostáváš ${this.actEquation.reward} peněz.`);
       localStorage.setItem('catematicsSave', JSON.stringify(this.data));
-      this.generateNewNumbers();
+      this.generateNewNumbers(true);
+      this.resultEvaluation = 'right';
     } else {
+      this.resultEvaluation = 'wrong';
       // this.sendMessage('Bohužel, výsledek je špatně.');
     }
+    setTimeout(() => {
+      this.resultEvaluation = 'normal';
+    }, (this.settings.catComputingTime * 200));
+
     this.form.controls.result.setValue('');
   }
 
@@ -133,7 +168,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
 //    this.testGenerator();
 
-    this.generateNewNumbers();
+    this.generateNewNumbers(false);
   }
 
   buy(price: number, type: string) {
@@ -175,7 +210,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   private checkCatComputing() {
-    if (this.data.cat >= 0 && Math.random() < (this.settings.catComputingRatio/100)) {
+    if (this.victory || (this.data.cat >= 0 && Math.random() < (this.settings.catComputingRatio/100))) {
       let checkNumber: number;
       // Problém je ten, že když jako číslo podle kterého určuju co kočka spočítá
       // je cokoli jiného než firstNumber, ztrácí se náhodnost. Např. když je to výsledek,
@@ -189,16 +224,35 @@ export class AppComponent implements OnInit, OnDestroy {
           break;
       }
 
-      if ((this.data.cat + 1) * this.settings.gameLength >= checkNumber) {
-        this.computingCatKey = Math.floor((Math.abs(checkNumber - 1)) / 2);
+      if (this.victory || ((this.data.cat + 1) * this.settings.gameLength >= checkNumber)) {
+        this.computingCatKey = Math.floor((Math.abs(checkNumber - 1)) / this.settings.gameLength);
+        if (this.computingCatKey > this.data.cat){
+          this.computingCatKey = this.purchasedCats[this.purchasedCats.length - 1].id;
+
+        }
+        let catComputingDuration;
+        if(this.victory){
+          this.actEquation.reward = Math.floor(this.actEquation.reward * this.victorySpeeder * 1.5);
+          catComputingDuration = this.settings.catComputingTime / this.victorySpeeder;
+          this.victorySpeeder = this.victorySpeeder + 0.08;
+        }else{
+          catComputingDuration = this.settings.catComputingTime;
+        }
+
         this.sendMessage(this.data.cats[this.computingCatKey].name
-          + ` spočítala ${this.actEquation.firstNumber} ${this.actEquation.operation} ${this.actEquation.secondNumber} = ${this.actEquation.result}. Dostáváš ${this.actEquation.reward} peněz.`);
+          + ` počítá ${this.actEquation.firstNumber} ${this.actEquation.operation} ${this.actEquation.secondNumber} = ${this.actEquation.result}. Dostáváš ${this.actEquation.reward} peněz.`);
         this.data.money += this.actEquation.reward;
         this.catComputing = true;
+
+        if(this.data.money > 1000000){
+          this.data.money =  1000000;
+          this.nameEditing = true; // aby se disablovali nakupovací tlačítka
+          this.victory = false;
+        }
         setTimeout(() => {
           this.catComputing = false;
-          this.generateNewNumbers();
-        }, (this.settings.catComputingTime * 1000));
+          this.generateNewNumbers(true);
+        }, (catComputingDuration * 1000));
       }
     }
   }
@@ -221,7 +275,12 @@ export class AppComponent implements OnInit, OnDestroy {
     this.nextCatPrice = (this.data.cat + 2) * 25 * this.settings.gameLength;
     this.nextNumPrice = (this.data.maxNum + 1) * (this.data.maxNum + 1);
     this.purchasedCats = this.data.cats.filter(c => c.purchased);
-    this.displayNextCat = (this.data.cat < 15 && this.data.maxNum >= (((this.data.cat) + 2) * this.settings.gameLength) + 2);
+    this.displayNextCat =
+      (this.data.cat < 9 && this.data.maxNum >=
+        (((this.data.cat) + 3) * this.settings.gameLength));
+    if (this.data.cat >= 9){
+      this.victory = true;
+    }
   }
 
 
@@ -231,15 +290,30 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   saveSettings() {
-    if(this.settingsForm.valid) {
-      this.settings = this.settingsForm.getRawValue();
+    if(this.settingsForm.valid && this.settingsForm.get('password').value.toString().toLowerCase() === 'matrix') {
+      const formData = this.settingsForm.getRawValue();
+      delete formData.password;
+      this.settings = formData;
       localStorage.setItem('catematicsSettings', JSON.stringify(this.settings));
       this.settingsOpen = false;
+      this.actualizePrices();
+    }else{
+      this.settingsForm.get('password').setValue('To není ono.');
     }
   }
 
   resetSettings() {
-    this.settingsForm.setValue(this.settings);
+    this.settingsForm.patchValue(this.defaultSettings);
+  }
+
+  private actualizePrices() {
+    this.prices = {
+      subtraction: this.defaultPrices.subtraction * this.settings.gameLength,
+      overTen: this.defaultPrices.overTen * this.settings.gameLength,
+      overDecimals: this.defaultPrices.overDecimals * this.settings.gameLength,
+      subOverTen: this.defaultPrices.subOverTen * this.settings.gameLength,
+      subOverDecimals: this.defaultPrices.subOverDecimals * this.settings.gameLength,
+    };
   }
 
   moveCats() {

@@ -1,40 +1,4 @@
-.buy-card{
-  width: 200px;
-  display: inline-block;
-}
-
-.cat-image{
-  width: 120px;
-  max-height: 120px;
-}
-
-.cat{
-  text-align: center;
-  height: 100px;
-}
-
-.inner-buy-card{
-  height: 147px;
-  font-size: 60px;
-  text-align: center;
-}
-
-.buy-block{
-  position: absolute;
-  bottom: 20px;
-  margin-left: 20px;
-}
-
-.log-block{
-  margin-top: 40px;
-  margin-left: 20px;
-  background-color: #d3d3d314;
-  border: darkgrey 1px solid;
-  width: 450px;
-  border-radius: 3px;
-}
-
-.compute-block{
+.compute-block {
   display: inline-block;
   margin-top: 40px;
   margin-left: 20px;
@@ -42,11 +6,28 @@
   border: darkgrey 2px solid;
   border-radius: 3px;
   width: 500px;
-  height: 120px;
+  height: 150px;
+}
+.cat-result{
+  border: darkgrey 2px solid;
+  padding: 10px;
+  text-align: center;
+  font-size: 35px;
+  border-radius: 11px;
+  min-width: 40px;
+  background-color: chartreuse;
+  display: inline-block;
+}
+
+.equation{
+  margin-top: 30px;
+  vertical-align: center;
 }
 
 .block-money{
-  margin-left: 80px;
+  position: absolute;
+  margin-left: 40px;
+  margin-top: 40px;
   display: inline-block;
   text-align: center;
   background-color: #b8860b08;
@@ -57,7 +38,7 @@
 }
 
 .cats-block{
-  width: 300px;
+  width: 350px;
   position: absolute;
   right: 10px;
   top: 10px;
@@ -65,7 +46,92 @@
 
 .my-cat{
   display: inline-block;
-  width: 120px;
+  width: 140px;
+  border: gold 2px solid;
+  border-radius: 3px;
+  margin: 3px;
 }
+
+.cat-image{
+  width: 140px;
+  height: 110px;
+  text-align: center;
+  display: inline-block;
+  /*border: 1px solid linen;*/
+  /*border-radius: 2px;*/
+  /*border-collapse: collapse;*/
+}
+
+.cat-image img {
+  vertical-align: middle;
+}
+
+.helper {
+  display: inline-block;
+  height: 100%;
+  vertical-align: middle;
+}
+
+.cat-name {
+  font-size: 20px;
+  text-align: center;
+}
+
+
+.buy-block{
+  position: absolute;
+  bottom: 20px;
+  margin-left: 20px;
+}
+
+.buy-card{
+  width: 170px;
+  display: inline-block;
+  border: darkgrey 2px solid;
+  margin-left: 6px;
+  border-radius: 3px;
+}
+
+.inner-buy-card{
+  height: 130px;
+  font-size: 60px;
+  text-align: center;
+  vertical-align: center;
+}
+
+.buy-body{
+  height: 155px;
+  padding: 6px;
+}
+
+.buy-header{
+  font-weight: bold;
+  text-align: center;
+  padding: 6px;
+  border-bottom: lightgray 1px solid;
+}
+
+.buy-button{
+  text-align: center;
+  padding: 6px;
+  border-top: lightgray 1px solid;
+}
+
+
+.log-block{
+  margin-top: 40px;
+  margin-left: 20px;
+  background-color: #d3d3d314;
+  border: darkgrey 1px solid;
+  width: 540px;
+  border-radius: 3px;
+}
+
+.settings{
+  margin: 12px;
+}
+
+
+
 
 

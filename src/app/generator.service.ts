@@ -61,9 +61,9 @@ export class GeneratorService {
         break;
     }
 
-    // if (max > firstNumber) {
-    //   max = firstNumber;
-    // }
+    if (max > data.maxNum) {
+      max = data.maxNum;
+    }
     const secondNumber = GeneratorService.getRandomInt(max);
     let result;
     switch (operation) {
