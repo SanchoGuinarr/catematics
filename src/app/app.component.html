@@ -1,20 +1,181 @@
-<!--The content below is only a placeholder and can be replaced.-->
-<div style="text-align:center">
-  <h1>
-    Welcome to {{ title }}!
-  </h1>
-  <img width="300" alt="Angular Logo" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTAgMjUwIj4KICAgIDxwYXRoIGZpbGw9IiNERDAwMzEiIGQ9Ik0xMjUgMzBMMzEuOSA2My4ybDE0LjIgMTIzLjFMMTI1IDIzMGw3OC45LTQzLjcgMTQuMi0xMjMuMXoiIC8+CiAgICA8cGF0aCBmaWxsPSIjQzMwMDJGIiBkPSJNMTI1IDMwdjIyLjItLjFWMjMwbDc4LjktNDMuNyAxNC4yLTEyMy4xTDEyNSAzMHoiIC8+CiAgICA8cGF0aCAgZmlsbD0iI0ZGRkZGRiIgZD0iTTEyNSA1Mi4xTDY2LjggMTgyLjZoMjEuN2wxMS43LTI5LjJoNDkuNGwxMS43IDI5LjJIMTgzTDEyNSA1Mi4xem0xNyA4My4zaC0zNGwxNy00MC45IDE3IDQwLjl6IiAvPgogIDwvc3ZnPg==">
+<ng-container *ngIf="!settingsOpen">
+<div class="compute-block">
+  <ng-container *ngIf="!this.nameEditing">
+  <div style="display: inline-block; font-size: 35px">
+    <form [formGroup]="form">
+      {{actEquation.firstNumber}}{{actEquation.operation}}{{actEquation.secondNumber}} =
+      <input #result *ngIf="!catComputing" style="width: 100px; font-size: 20px; height: 40px" (keyup.enter)="evaluate()"
+             formControlName="result" autoFocus>
+    </form>
+  </div>
+  <button *ngIf="!catComputing"
+          style="margin-left: 10px; font-size: 20px"
+          (click)="evaluate()">Hotovo
+  </button>
+  <button *ngIf="!catComputing" style="margin-left: 10px; font-size: 20px" (click)="nextEquation()">Jiný příklad</button>
+  <div  style="display: inline-block" *ngIf="catComputing">
+    <img src="../assets/images/cat_{{getComputingCat()}}.jpg">1,2,3 ...
+  </div>
+  <div *ngIf="!catComputing" >Odměna {{actEquation.reward}}</div>
+  </ng-container>
+  <ng-container *ngIf="this.nameEditing">
+    <form [formGroup]="form">
+      Zadej jméno nové kočičky <input style="width: 150px; font-size: 20px; height: 40px"
+             formControlName="result">
+    </form>
+    <button style="margin-left: 10px; font-size: 20px"
+            (click)="editName()">Hotovo
+    </button>
+  </ng-container>
 </div>
-<h2>Here are some links to help you start: </h2>
-<ul>
-  <li>
-    <h2><a target="_blank" rel="noopener" href="https://angular.io/tutorial">Tour of Heroes</a></h2>
-  </li>
-  <li>
-    <h2><a target="_blank" rel="noopener" href="https://github.com/angular/angular-cli/wiki">CLI Documentation</a></h2>
-  </li>
-  <li>
-    <h2><a target="_blank" rel="noopener" href="https://blog.angular.io/">Angular blog</a></h2>
-  </li>
-</ul>
+
+<div class="block-money">
+  <img style="width: 60px" src="../assets/images/chest.jpg">
+  <div style="font-size: 30px">{{data.money}}</div>
+</div>
+<!--<div>Maximální číslo {{data.maxNum}}</div>-->
+<!--<div>Počítací kočička {{data.cat}}</div>-->
+<div class="log-block">
+  <div style="height: 200px; overflow-y: scroll; margin: 10px" #scrollMe [scrollTop]="scrollMe.scrollHeight">
+    <div *ngFor="let line of messages">
+      {{line}}
+    </div>
+  </div>
+</div>
+
+<div class="cats-block">
+  <h3>Moje kočičky</h3>
+  <div *ngFor="let cat of purchasedCats; index as i;" class="my-cat">
+    <ng-container *ngIf="!catComputing || getComputingCat() !== cat.id">
+    <img [id]="'cat_'+i" class="cat-image" src="../assets/images/cat_{{cat.id}}.jpg">
+      <div>{{cat.name}}</div>
+      Počítá do {{(i + 1) * settings.gameLength}}
+    </ng-container>
+  </div>
+</div>
+
+<div class="buy-block">
+  <h3>Nakoupit:</h3>
+  <div class="buy-card">
+    <div>
+      Nové číslo
+    </div>
+    <div>
+      <div class="inner-buy-card">
+        {{data.maxNum + 1}}
+      </div>
+      Cena: {{nextNumPrice}}
+    </div>
+      <button (click)="buy(nextNumPrice,'maxNum')"
+              [disabled]="data.money < nextNumPrice">Koupit
+      </button>
+  </div>
+
+
+  <div *ngIf="!data.subtraction && data.maxNum >= 5" class="buy-card">
+    <div>
+      Odčítání
+    </div>
+      <div class="inner-buy-card">
+        -
+      </div>
+      Cena:  {{prices.subtraction}}
+      <button (click)="buy(computeNumberPrice(),'subtraction')"
+              [disabled]="data.money < prices.subtraction">Koupit
+      </button>
+  </div>
+
+  <div *ngIf="!data.overTen && data.maxNum >= 15" class="buy-card">
+    <div>
+      Sčítání do 20
+    </div>
+      <div class="inner-buy-card">
+        8 + 6
+      </div>
+      Cena:  {{prices.overTen}}
+      <button (click)="buy(prices.overTen,'overTen')" [disabled]="data.money < prices.overTen">
+        Koupit
+      </button>
+  </div>
+
+  <div *ngIf="!data.overDecimals && data.maxNum >= 35 && data.overTen" class="buy-card">
+    <div>
+      Sčítání do 100
+    </div>
+      <div class="inner-buy-card">
+        27 + 6
+      </div>
+      Cena:  {{prices.overDecimals}}
+      <button  (click)="buy(prices.overDecimals,'overDecimals')"
+              [disabled]="data.money < prices.overDecimals">Koupit
+      </button>
+  </div>
+
+
+  <div *ngIf="!data.subOverTen && data.maxNum >= 20 && data.overTen" class="buy-card">
+    <div>
+      Odčítání do 20
+    </div>
+      <div class="inner-buy-card">
+        14 - 6
+      </div>
+      Cena:  {{prices.subOverTen}}
+      <button  (click)="buy(prices.subOverTen,'subOverTen')"
+              [disabled]="data.money < prices.subOverTen">Koupit
+      </button>
+  </div>
+
+  <div *ngIf="!data.subOverDecimals && data.maxNum >= 45 && data.subOverDecimals" class="buy-card">
+    <div>
+      Odčítání do 100
+    </div>
+      <div class="inner-buy-card">
+        27 - 14
+      </div>
+      Cena:  {{prices.subOverDecimals}}
+      <button  (click)="buy(prices.subOverDecimals,'subOverDecimals')"
+              [disabled]="data.money < prices.subOverDecimals">Koupit
+      </button>
+  </div>
+
+  <div *ngIf="displayNextCat" class="buy-card">
+    <div>
+      Počítací kočička
+    </div>
+      <div class="cat">
+        <img class="cat-image" src="../assets/images/cat_{{data.cats[data.cat + 1].id}}.jpg">
+      </div>
+      <p>Počítá do  {{((data.cat + 2) * 2)}}</p>
+      <p>Cena:  {{nextCatPrice}}</p>
+      <button  (click)="buy(nextCatPrice,'cat')"
+              [disabled]="data.money < nextCatPrice">Koupit
+      </button>
+  </div>
+</div>
+
+  <button (click)="settingsOpen = true;">Otevřít nastavení</button>
+</ng-container>
+<ng-container *ngIf="settingsOpen">
+  <form [formGroup]="settingsForm">
+    <div>
+    Délka hry [1-10]<input type="number" min="1" max="10" formControlName="gameLength">
+    </div>
+    <div>
+    Poměr kočičkami spočítaných příkladů [%]<input type="number" min="0" max="100" formControlName="catComputingRatio">
+    </div>
+    <div>
+    Doba kočičího počítání [s]<input type="number" min="1" max="10" formControlName="catComputingTime">
+    </div>
+    <div>
+    Poměr příkladů na odčítání [%]<input type="number" min="0" max="1" formControlName="subtractingRatio">
+    </div>
+    <div>
+      Konstatnta pro výpočet velikosti odměny <input type="number" min="0" max="100" formControlName="rewardConstant">
+    </div>
+  </form>
+  <button  (click)="saveSettings()" [disabled]="!settingsForm.valid">Uložit</button>
+  <button  (click)="resetSettings()" [disabled]="!settingsForm.valid">Resetovat nastavení</button>
+  <button  (click)="reset()" >Smazat aktuální hru
+  </button>
+</ng-container>
 

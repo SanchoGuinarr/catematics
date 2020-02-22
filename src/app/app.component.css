@@ -1,0 +1,71 @@
+.buy-card{
+  width: 200px;
+  display: inline-block;
+}
+
+.cat-image{
+  width: 120px;
+  max-height: 120px;
+}
+
+.cat{
+  text-align: center;
+  height: 100px;
+}
+
+.inner-buy-card{
+  height: 147px;
+  font-size: 60px;
+  text-align: center;
+}
+
+.buy-block{
+  position: absolute;
+  bottom: 20px;
+  margin-left: 20px;
+}
+
+.log-block{
+  margin-top: 40px;
+  margin-left: 20px;
+  background-color: #d3d3d314;
+  border: darkgrey 1px solid;
+  width: 450px;
+  border-radius: 3px;
+}
+
+.compute-block{
+  display: inline-block;
+  margin-top: 40px;
+  margin-left: 20px;
+  padding: 20px;
+  border: darkgrey 2px solid;
+  border-radius: 3px;
+  width: 500px;
+  height: 120px;
+}
+
+.block-money{
+  margin-left: 80px;
+  display: inline-block;
+  text-align: center;
+  background-color: #b8860b08;
+  padding: 20px;
+  width: 150px;
+  border: gold solid 2px;
+  border-radius: 3px;
+}
+
+.cats-block{
+  width: 300px;
+  position: absolute;
+  right: 10px;
+  top: 10px;
+}
+
+.my-cat{
+  display: inline-block;
+  width: 120px;
+}
+
+
