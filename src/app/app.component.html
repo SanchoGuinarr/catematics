@@ -23,7 +23,7 @@
       <div style="display: inline-block" *ngIf="catComputing">
         <div class="cat-result">{{actEquation.result}}</div>
         <div class="cat-image">
-          <span class="helper"></span><img src="../assets/images/cat_{{getComputingCat()}}.jpg">
+          <span class="helper"></span><img src="./assets/images/cat_{{getComputingCat()}}.jpg">
         </div>
       </div>
 
@@ -44,7 +44,7 @@
   </div>
 
   <div class="block-money">
-    <img style="width: 60px" src="../assets/images/chest.jpg">
+    <img style="width: 60px" src="./assets/images/chest.jpg">
     <div style="font-size: 30px">{{data.money}}</div>
   </div>
   <!--<div>Maximální číslo {{data.maxNum}}</div>-->
@@ -63,7 +63,7 @@
       <div class="cat-image">
         <span class="helper"></span>
         <img *ngIf="!catComputing || getComputingCat() !== cat.id"
-             [id]="'cat_'+i" src="../assets/images/cat_{{cat.id}}.jpg">
+             [id]="'cat_'+i" src="./assets/images/cat_{{cat.id}}.jpg">
       </div>
       <div class="cat-name">{{cat.name}}</div>
     </div>
@@ -183,8 +183,8 @@
       <div class="buy-body">
         <div class="cat-image">
           <span class="helper"></span>
-<!--          <img src="../assets/images/cat_{{cat.id}}.jpg">-->
-          <img src="../assets/images/cat_{{data.cats[data.cat + 1].id}}.jpg">
+<!--          <img src="./assets/images/cat_{{cat.id}}.jpg">-->
+          <img src="./assets/images/cat_{{data.cats[data.cat + 1].id}}.jpg">
         </div>
         <div>Počítá příklady do {{((data.cat + 2) * this.settings.gameLength)}}</div>
         <div>Cena:  {{nextCatPrice}}</div>
